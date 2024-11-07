@@ -1,5 +1,13 @@
 import { HttpClient } from "./httpClient";
 import { type HttpClientOptions } from "./httpClient.interface";
+import {
+  HttpGénériqueError,
+  NonAutoriséError,
+  NonIdentifiéError,
+  NonTrouvéError,
+  RequêteInvalideError,
+  ServeurTemporairementIndisponibleError,
+} from "@/services/errors/errors";
 import { type ILogger } from "@/services/logger/logger.interface";
 import { mock } from "vitest-mock-extended";
 
@@ -38,20 +46,20 @@ describe("HttpClient", () => {
       expect(logger.error).not.toHaveBeenCalled();
     });
 
-    test("doit renvoyer undefined et logger l'erreur si la requête a échouée (status != ok)", async () => {
+    test("doit renvoyer une erreur RequêteInvalideError et logger l'erreur si la requête a échouée avec un status 400", async () => {
       // GIVEN
       const options: HttpClientOptions = {
         endpoint: ENDPOINT,
         méthode: "GET",
       };
-      const response = new Response(null, { status: 404 });
+      const response = new Response(null, { status: 400 });
       vitest.spyOn(global, "fetch").mockResolvedValueOnce(response);
 
       // WHEN
       const result = await httpClient.récupérer(options);
 
       // THEN
-      expect(result).toBeUndefined();
+      expect(result).toBeInstanceOf(RequêteInvalideError);
       expect(global.fetch).toHaveBeenCalledWith(options.endpoint, {
         method: options.méthode,
         body: undefined,
@@ -67,7 +75,152 @@ describe("HttpClient", () => {
       });
     });
 
-    test("doit renvoyer undefined et logger l'erreur si une erreur survient", async () => {
+    test("doit renvoyer une erreur NonIdentifiéError et logger l'erreur si la requête a échouée avec un status 401", async () => {
+      // GIVEN
+      const options: HttpClientOptions = {
+        endpoint: ENDPOINT,
+        méthode: "GET",
+      };
+      const response = new Response(null, { status: 401 });
+      vitest.spyOn(global, "fetch").mockResolvedValueOnce(response);
+
+      // WHEN
+      const result = await httpClient.récupérer(options);
+
+      // THEN
+      expect(result).toBeInstanceOf(NonIdentifiéError);
+      expect(global.fetch).toHaveBeenCalledWith(options.endpoint, {
+        method: options.méthode,
+        body: undefined,
+        headers: {
+          "content-type": "application/json",
+        },
+      });
+      expect(logger.error).toHaveBeenCalledWith({
+        endpoint: options.endpoint,
+        méthode: options.méthode,
+        body: undefined,
+        status: response.status,
+      });
+    });
+
+    test("doit renvoyer une erreur NonAutoriséError et logger l'erreur si la requête a échouée avec un status 403", async () => {
+      // GIVEN
+      const options: HttpClientOptions = {
+        endpoint: ENDPOINT,
+        méthode: "GET",
+      };
+      const response = new Response(null, { status: 403 });
+      vitest.spyOn(global, "fetch").mockResolvedValueOnce(response);
+
+      // WHEN
+      const result = await httpClient.récupérer(options);
+
+      // THEN
+      expect(result).toBeInstanceOf(NonAutoriséError);
+      expect(global.fetch).toHaveBeenCalledWith(options.endpoint, {
+        method: options.méthode,
+        body: undefined,
+        headers: {
+          "content-type": "application/json",
+        },
+      });
+      expect(logger.error).toHaveBeenCalledWith({
+        endpoint: options.endpoint,
+        méthode: options.méthode,
+        body: undefined,
+        status: response.status,
+      });
+    });
+
+    test("doit renvoyer une erreur NonTrouvéError et logger l'erreur si la requête a échouée avec un status 404", async () => {
+      // GIVEN
+      const options: HttpClientOptions = {
+        endpoint: ENDPOINT,
+        méthode: "GET",
+      };
+      const response = new Response(null, { status: 404 });
+      vitest.spyOn(global, "fetch").mockResolvedValueOnce(response);
+
+      // WHEN
+      const result = await httpClient.récupérer(options);
+
+      // THEN
+      expect(result).toBeInstanceOf(NonTrouvéError);
+      expect(global.fetch).toHaveBeenCalledWith(options.endpoint, {
+        method: options.méthode,
+        body: undefined,
+        headers: {
+          "content-type": "application/json",
+        },
+      });
+      expect(logger.error).toHaveBeenCalledWith({
+        endpoint: options.endpoint,
+        méthode: options.méthode,
+        body: undefined,
+        status: response.status,
+      });
+    });
+
+    test("doit renvoyer une erreur ServeurTemporairementIndisponibleError et logger l'erreur si la requête a échouée avec un status 503", async () => {
+      // GIVEN
+      const options: HttpClientOptions = {
+        endpoint: ENDPOINT,
+        méthode: "GET",
+      };
+      const response = new Response(null, { status: 503 });
+      vitest.spyOn(global, "fetch").mockResolvedValueOnce(response);
+
+      // WHEN
+      const result = await httpClient.récupérer(options);
+
+      // THEN
+      expect(result).toBeInstanceOf(ServeurTemporairementIndisponibleError);
+      expect(global.fetch).toHaveBeenCalledWith(options.endpoint, {
+        method: options.méthode,
+        body: undefined,
+        headers: {
+          "content-type": "application/json",
+        },
+      });
+      expect(logger.error).toHaveBeenCalledWith({
+        endpoint: options.endpoint,
+        méthode: options.méthode,
+        body: undefined,
+        status: response.status,
+      });
+    });
+
+    test("doit renvoyer une erreur générique et logger l'erreur si la requête a échouée avec n'importe quel autre status !== ok", async () => {
+      // GIVEN
+      const options: HttpClientOptions = {
+        endpoint: ENDPOINT,
+        méthode: "GET",
+      };
+      const response = new Response(null, { status: 500 });
+      vitest.spyOn(global, "fetch").mockResolvedValueOnce(response);
+
+      // WHEN
+      const result = await httpClient.récupérer(options);
+
+      // THEN
+      expect(result).toBeInstanceOf(HttpGénériqueError);
+      expect(global.fetch).toHaveBeenCalledWith(options.endpoint, {
+        method: options.méthode,
+        body: undefined,
+        headers: {
+          "content-type": "application/json",
+        },
+      });
+      expect(logger.error).toHaveBeenCalledWith({
+        endpoint: options.endpoint,
+        méthode: options.méthode,
+        body: undefined,
+        status: response.status,
+      });
+    });
+
+    test("doit renvoyer une erreur générique et logger l'erreur si une erreur survient", async () => {
       // GIVEN
       const options: HttpClientOptions = {
         endpoint: ENDPOINT,
@@ -80,7 +233,7 @@ describe("HttpClient", () => {
       const result = await httpClient.récupérer(options);
 
       // THEN
-      expect(result).toBeUndefined();
+      expect(result).toBeInstanceOf(HttpGénériqueError);
       expect(global.fetch).toHaveBeenCalledWith(options.endpoint, {
         method: options.méthode,
         body: undefined,

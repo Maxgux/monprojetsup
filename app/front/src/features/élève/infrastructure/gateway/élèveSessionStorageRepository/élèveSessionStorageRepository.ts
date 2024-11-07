@@ -22,7 +22,7 @@ export class ÉlèveSessionStorageRepository implements ÉlèveRepository {
     formationsMasquées: null,
   };
 
-  public async récupérerProfil(): Promise<Élève | undefined> {
+  public async récupérerProfil(): Promise<Élève | Error> {
     const élève = sessionStorage.getItem(this._SESSION_STORAGE_PREFIX);
 
     if (élève) {
@@ -34,21 +34,21 @@ export class ÉlèveSessionStorageRepository implements ÉlèveRepository {
     return this._élève;
   }
 
-  public async mettreÀJourProfil(élève: Élève): Promise<Élève | undefined> {
+  public async mettreÀJourProfil(élève: Élève): Promise<Élève | Error> {
     this._élève = élève;
     sessionStorage.setItem(this._SESSION_STORAGE_PREFIX, JSON.stringify(this._élève));
 
     return this._élève;
   }
 
-  public async associerCompteParcourSup(): Promise<boolean | undefined> {
+  public async associerCompteParcourSup(): Promise<boolean | Error> {
     const élève = await this.récupérerProfil();
 
-    if (élève) {
-      await this.mettreÀJourProfil({ ...élève, compteParcoursupAssocié: true });
-      return true;
+    if (élève instanceof Error) {
+      return false;
     }
 
-    return false;
+    await this.mettreÀJourProfil({ ...élève, compteParcoursupAssocié: true });
+    return true;
   }
 }

@@ -6,13 +6,21 @@ import { queryOptions } from "@tanstack/react-query";
 export const élèveQueryOptions = queryOptions({
   queryKey: ["élève"],
   queryFn: async () => {
-    return (await dépendances.récupérerProfilÉlèveUseCase.run()) ?? null;
+    const réponse = await dépendances.récupérerProfilÉlèveUseCase.run();
+
+    if (réponse instanceof Error) throw réponse;
+
+    return réponse;
   },
 });
 
 queryClient.setMutationDefaults(["mettreÀJourÉlève"], {
   mutationFn: async (élève: Élève) => {
-    return await dépendances.mettreÀJourProfilÉlèveUseCase.run(élève);
+    const réponse = await dépendances.mettreÀJourProfilÉlèveUseCase.run(élève);
+
+    if (réponse instanceof Error) throw réponse;
+
+    return réponse;
   },
   onSuccess: async () => {
     await queryClient.invalidateQueries(élèveQueryOptions);

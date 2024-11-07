@@ -12,7 +12,7 @@ export class MpsApiHttpClient implements IMpsApiHttpClient {
   public get = async <O extends object>(
     endpoint: keyof paths,
     paramètresDeRequête?: URLSearchParams,
-  ): Promise<O | undefined> => {
+  ): Promise<O | Error> => {
     return await this._httpClient.récupérer<O>({
       endpoint: paramètresDeRequête
         ? `${this._apiBaseUrl}${endpoint}?${paramètresDeRequête.toString()}`
@@ -24,7 +24,7 @@ export class MpsApiHttpClient implements IMpsApiHttpClient {
     });
   };
 
-  public post = async <O extends object>(endpoint: keyof paths, body: object): Promise<O | undefined> => {
+  public post = async <O extends object>(endpoint: keyof paths, body: object): Promise<O | Error> => {
     return await this._httpClient.récupérer<O>({
       endpoint: `${this._apiBaseUrl}${endpoint}`,
       méthode: "POST",

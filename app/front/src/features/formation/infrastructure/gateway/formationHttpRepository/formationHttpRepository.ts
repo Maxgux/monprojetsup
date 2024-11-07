@@ -11,13 +11,17 @@ export class formationHttpRepository implements FormationRepository {
 
   public constructor(private _mpsApiHttpClient: IMpsApiHttpClient) {}
 
-  public async récupérer(formationId: string): Promise<Formation | undefined> {
-    const formations = await this.récupérerPlusieurs([formationId]);
+  public async récupérer(formationId: string): Promise<Formation | Error> {
+    const réponse = await this.récupérerPlusieurs([formationId]);
 
-    return formations?.[0];
+    if (réponse instanceof Error) {
+      return réponse;
+    }
+
+    return réponse?.[0];
   }
 
-  public async récupérerPlusieurs(formationIds: string[]): Promise<Formation[] | undefined> {
+  public async récupérerPlusieurs(formationIds: string[]): Promise<Formation[] | Error> {
     const paramètresDeRequête = new URLSearchParams();
 
     for (const formationId of formationIds) {
@@ -29,12 +33,14 @@ export class formationHttpRepository implements FormationRepository {
       paramètresDeRequête,
     );
 
-    if (!réponse) return undefined;
+    if (réponse instanceof Error) {
+      return réponse;
+    }
 
     return réponse.formations.map((formation) => this._mapperVersLeDomaine(formation));
   }
 
-  public async rechercher(recherche: string): Promise<Formation[] | undefined> {
+  public async rechercher(recherche: string): Promise<Formation[] | Error> {
     const paramètresDeRequête = new URLSearchParams();
     paramètresDeRequête.set("recherche", recherche);
 
@@ -43,17 +49,21 @@ export class formationHttpRepository implements FormationRepository {
       paramètresDeRequête,
     );
 
-    if (!réponse) return undefined;
+    if (réponse instanceof Error) {
+      return réponse;
+    }
 
     return réponse.formations.map((formation) => this._mapperVersLeDomaine(formation));
   }
 
-  public async suggérer(): Promise<Formation[] | undefined> {
+  public async suggérer(): Promise<Formation[] | Error> {
     const réponse = await this._mpsApiHttpClient.get<RécupérerSuggestionsFormationsRéponseHTTP>(
       `${this._ENDPOINT}/suggestions`,
     );
 
-    if (!réponse) return undefined;
+    if (réponse instanceof Error) {
+      return réponse;
+    }
 
     return réponse.formations.map((formation) => this._mapperVersLeDomaine(formation));
   }

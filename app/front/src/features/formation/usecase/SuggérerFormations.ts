@@ -4,7 +4,7 @@ import { type FormationRepository } from "@/features/formation/infrastructure/fo
 export class SuggérerFormationsUseCase {
   public constructor(private readonly _formationRepository: FormationRepository) {}
 
-  public async run(): Promise<Formation[] | undefined> {
+  public async run(): Promise<Formation[] | Error> {
     return await this._formationRepository.suggérer();
   }
 }

@@ -36,7 +36,7 @@ export default function useEntête() {
         {
           iconId: "fr-icon-close-line",
           buttonProps: {
-            onClick: () => utilisateur.seDéconnecter,
+            onClick: () => utilisateur.seDéconnecter(),
           },
           text: i18n.PAGE_PROFIL.SE_DÉCONNECTER,
         },

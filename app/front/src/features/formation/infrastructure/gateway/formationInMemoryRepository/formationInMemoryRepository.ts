@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/require-await */
 import { type Formation } from "@/features/formation/domain/formation.interface";
 import { type FormationRepository } from "@/features/formation/infrastructure/formationRepository.interface";
+import { NonTrouvéError } from "@/services/errors/errors";
 
 export class formationInMemoryRepository implements FormationRepository {
   private FORMATIONS: Formation[] = [
@@ -156,19 +157,19 @@ export class formationInMemoryRepository implements FormationRepository {
     },
   ];
 
-  public async récupérer(formationId: string): Promise<Formation | undefined> {
-    return this.FORMATIONS.find((formation) => formation.id === formationId);
+  public async récupérer(formationId: string): Promise<Formation | Error> {
+    return this.FORMATIONS.find((formation) => formation.id === formationId) ?? new NonTrouvéError();
   }
 
-  public async récupérerPlusieurs(formationIds: string[]): Promise<Formation[] | undefined> {
+  public async récupérerPlusieurs(formationIds: string[]): Promise<Formation[] | Error> {
     return this.FORMATIONS.filter((formation) => formationIds.includes(formation.id));
   }
 
-  public async rechercher(recherche: string): Promise<Formation[] | undefined> {
+  public async rechercher(recherche: string): Promise<Formation[] | Error> {
     return this.FORMATIONS.filter((formation) => formation.nom.toLowerCase().includes(recherche.toLowerCase()));
   }
 
-  public async suggérer(): Promise<Formation[] | undefined> {
+  public async suggérer(): Promise<Formation[] | Error> {
     return this.FORMATIONS.slice(0, 5);
   }
 }

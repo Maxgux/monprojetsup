@@ -4,7 +4,7 @@ import { type ÉlèveRepository } from "@/features/élève/infrastructure/gatewa
 export class MettreÀJourÉlèveUseCase {
   public constructor(private readonly _élèveRepository: ÉlèveRepository) {}
 
-  public async run(élève: Élève): Promise<Élève | undefined> {
+  public async run(élève: Élève): Promise<Élève | Error> {
     return await this._élèveRepository.mettreÀJourProfil(élève);
   }
 }

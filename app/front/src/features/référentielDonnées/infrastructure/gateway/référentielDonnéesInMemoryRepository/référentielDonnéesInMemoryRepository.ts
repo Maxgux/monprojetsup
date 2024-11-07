@@ -2952,7 +2952,7 @@ export class RéférentielDonnéesInMemoryRepository implements RéférentielDon
     ],
   };
 
-  public async récupérer(): Promise<RéférentielDonnées | undefined> {
+  public async récupérer(): Promise<RéférentielDonnées | Error> {
     return this.RÉFÉRENTIEL_DONNÉES;
   }
 }

@@ -4,13 +4,13 @@ import { type CommuneRepository } from "@/features/commune/infrastructure/commun
 export class RechercherCommunesUseCase {
   public constructor(private readonly _communeRepository: CommuneRepository) {}
 
-  public async run(recherche: string): Promise<Commune[] | undefined> {
-    const communes = await this._communeRepository.rechercher(recherche);
+  public async run(recherche: string): Promise<Commune[] | Error> {
+    const réponse = await this._communeRepository.rechercher(recherche);
 
-    if (!communes) return undefined;
+    if (réponse instanceof Error) return réponse;
 
-    const communesAvecGestionHomonymes = communes.slice(0, 20).map((commune, index) => {
-      const communeExistanteAvecLeMêmeNom = communes.some((subCommune, subIndex) => {
+    const communesAvecGestionHomonymes = réponse.slice(0, 20).map((commune, index) => {
+      const communeExistanteAvecLeMêmeNom = réponse.some((subCommune, subIndex) => {
         return subCommune.nom.toLocaleLowerCase() === commune.nom.toLocaleLowerCase() && subIndex !== index;
       });
 

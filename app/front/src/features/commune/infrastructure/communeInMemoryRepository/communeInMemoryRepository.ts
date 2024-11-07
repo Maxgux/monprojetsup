@@ -90,7 +90,7 @@ export class communeInMemoryRepository implements CommuneRepository {
     },
   ];
 
-  public async rechercher(recherche: string): Promise<Commune[] | undefined> {
+  public async rechercher(recherche: string): Promise<Commune[] | Error> {
     return this.COMMUNES.filter((commune) => commune.nom.toLowerCase().includes(recherche.toLowerCase()));
   }
 }

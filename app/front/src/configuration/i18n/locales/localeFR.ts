@@ -451,6 +451,18 @@ export const localeFR = {
     BOUTON_AFFICHER_CONTENU_PRINCIPAL: "Retour à la fiche",
     NE_VEUT_PAS_RÉPONDRE: "Je n’en ai aucune idée / Je ne veux pas répondre",
   },
+  ERREURS: {
+    SERVEUR_INDISPONIBLE: {
+      EMOJI: "😅",
+      TITRE: "Oups, le service est temporairement indisponible",
+      SOUS_TITRE: "Essaye de nouveau dans quelques minutes.",
+    },
+    GÉNÉRIQUE: {
+      EMOJI: "😱",
+      TITRE: "Oups, on dirait bien un bug",
+      SOUS_TITRE: "On a pris note de l'erreur et on corrige ça au plus vite.",
+    },
+  },
   ACCESSIBILITÉ: {
     CHARGEMENT: "Chargement",
     FAVORIS: "Favoris",

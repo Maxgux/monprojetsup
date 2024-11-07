@@ -6,7 +6,9 @@ export class AssocierCompteParcourSupÉlèveUseCase {
   public async run(codeVerifier: string, code: string, redirectUri: string): Promise<boolean> {
     const réponse = await this._élèveRepository.associerCompteParcourSup(codeVerifier, code, redirectUri);
 
-    if (!réponse) return false;
+    if (réponse instanceof Error) {
+      return false;
+    }
 
     return réponse;
   }

@@ -11,13 +11,17 @@ export class métierHttpRepository implements MétierRepository {
 
   public constructor(private _mpsApiHttpClient: IMpsApiHttpClient) {}
 
-  public async récupérer(métierId: string): Promise<Métier | undefined> {
-    const métiers = await this.récupérerPlusieurs([métierId]);
+  public async récupérer(métierId: string): Promise<Métier | Error> {
+    const réponse = await this.récupérerPlusieurs([métierId]);
 
-    return métiers?.[0];
+    if (réponse instanceof Error) {
+      return réponse;
+    }
+
+    return réponse?.[0];
   }
 
-  public async récupérerPlusieurs(métierIds: string[]): Promise<Métier[] | undefined> {
+  public async récupérerPlusieurs(métierIds: string[]): Promise<Métier[] | Error> {
     const paramètresDeRequête = new URLSearchParams();
 
     for (const métierId of métierIds) {
@@ -26,12 +30,14 @@ export class métierHttpRepository implements MétierRepository {
 
     const réponse = await this._mpsApiHttpClient.get<RécupérerMétiersRéponseHTTP>(this._ENDPOINT, paramètresDeRequête);
 
-    if (!réponse) return undefined;
+    if (réponse instanceof Error) {
+      return réponse;
+    }
 
     return réponse.metiers.map((métier) => this._mapperVersLeDomaine(métier));
   }
 
-  public async rechercher(recherche: string): Promise<Métier[] | undefined> {
+  public async rechercher(recherche: string): Promise<Métier[] | Error> {
     const paramètresDeRequête = new URLSearchParams();
     paramètresDeRequête.set("recherche", recherche);
 
@@ -40,7 +46,9 @@ export class métierHttpRepository implements MétierRepository {
       paramètresDeRequête,
     );
 
-    if (!réponse) return undefined;
+    if (réponse instanceof Error) {
+      return réponse;
+    }
 
     return réponse.metiers.map((métier) =>
       this._mapperVersLeDomaine({

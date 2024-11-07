@@ -7,9 +7,11 @@ export const rechercheCommunesQueryOptions = (recherche?: string) =>
     queryFn: async () => {
       if (recherche === undefined) return [];
 
-      const communes = await dépendances.rechercherCommunesUseCase.run(recherche);
+      const réponse = await dépendances.rechercherCommunesUseCase.run(recherche);
 
-      return communes ?? [];
+      if (réponse instanceof Error) return [];
+
+      return réponse ?? [];
     },
     enabled: false,
   });

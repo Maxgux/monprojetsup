@@ -4,7 +4,7 @@ import { type FormationRepository } from "@/features/formation/infrastructure/fo
 export class RécupérerFormationUseCase {
   public constructor(private readonly _formationRepository: FormationRepository) {}
 
-  public async run(formationId: Formation["id"]): Promise<Formation | undefined> {
+  public async run(formationId: Formation["id"]): Promise<Formation | Error> {
     return await this._formationRepository.récupérer(formationId);
   }
 }

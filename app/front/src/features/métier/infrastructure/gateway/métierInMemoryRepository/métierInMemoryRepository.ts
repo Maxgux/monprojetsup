@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/require-await */
 import { type Métier } from "@/features/métier/domain/métier.interface";
 import { type MétierRepository } from "@/features/métier/infrastructure/métierRepository.interface";
+import { NonTrouvéError } from "@/services/errors/errors";
 
 export class métierInMemoryRepository implements MétierRepository {
   private MÉTIERS: Métier[] = [
@@ -118,15 +119,15 @@ export class métierInMemoryRepository implements MétierRepository {
     },
   ];
 
-  public async récupérer(métierId: string): Promise<Métier | undefined> {
-    return this.MÉTIERS.find((métier) => métier.id === métierId);
+  public async récupérer(métierId: string): Promise<Métier | Error> {
+    return this.MÉTIERS.find((métier) => métier.id === métierId) ?? new NonTrouvéError();
   }
 
-  public async récupérerPlusieurs(métierIds: string[]): Promise<Métier[] | undefined> {
+  public async récupérerPlusieurs(métierIds: string[]): Promise<Métier[] | Error> {
     return this.MÉTIERS.filter((métier) => métierIds.includes(métier.id));
   }
 
-  public async rechercher(recherche: string): Promise<Métier[] | undefined> {
+  public async rechercher(recherche: string): Promise<Métier[] | Error> {
     return this.MÉTIERS.filter((métier) => métier.nom.toLowerCase().includes(recherche.toLowerCase()));
   }
 }

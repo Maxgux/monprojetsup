@@ -6,6 +6,7 @@ import {
 } from "./élèveHttpRepository.interface";
 import { type Élève } from "@/features/élève/domain/élève.interface";
 import { type ÉlèveRepository } from "@/features/élève/infrastructure/gateway/élèveRepository.interface";
+import { NonAutoriséError } from "@/services/errors/errors";
 import { type IMpsApiHttpClient } from "@/services/mpsApiHttpClient/mpsApiHttpClient.interface";
 
 export class ÉlèveHttpRepository implements ÉlèveRepository {
@@ -13,21 +14,46 @@ export class ÉlèveHttpRepository implements ÉlèveRepository {
 
   public constructor(private _mpsApiHttpClient: IMpsApiHttpClient) {}
 
-  public async récupérerProfil(): Promise<Élève | undefined> {
+  public async récupérerProfil(): Promise<Élève | Error> {
     const réponse = await this._mpsApiHttpClient.get<RécupérerProfilÉlèveRéponseHTTP>(this._ENDPOINT);
 
-    if (!réponse) return undefined;
+    if (réponse instanceof NonAutoriséError) {
+      await this.mettreÀJourProfil({
+        compteParcoursupAssocié: false,
+        situation: null,
+        classe: null,
+        bac: null,
+        spécialités: null,
+        domaines: null,
+        centresIntérêts: null,
+        métiersFavoris: null,
+        duréeÉtudesPrévue: null,
+        alternance: null,
+        moyenneGénérale: null,
+        communesFavorites: null,
+        formationsFavorites: null,
+        formationsMasquées: null,
+      });
+
+      return await this.récupérerProfil();
+    }
+
+    if (réponse instanceof Error) {
+      return réponse;
+    }
 
     return this._mapperVersLeDomaine(réponse);
   }
 
-  public async mettreÀJourProfil(élève: Élève): Promise<Élève | undefined> {
+  public async mettreÀJourProfil(élève: Élève): Promise<Élève | Error> {
     const réponse = await this._mpsApiHttpClient.post<MettreÀJourProfilÉlèveRéponseHTTP>(
       this._ENDPOINT,
       this._mapperVersLApiMps(élève),
     );
 
-    if (!réponse) return undefined;
+    if (réponse instanceof Error) {
+      return réponse;
+    }
 
     return élève;
   }
@@ -36,7 +62,7 @@ export class ÉlèveHttpRepository implements ÉlèveRepository {
     codeVerifier: string,
     code: string,
     redirectUri: string,
-  ): Promise<boolean | undefined> {
+  ): Promise<boolean | Error> {
     const réponse = await this._mpsApiHttpClient.post<AssocierCompteParcourSupÉlèveRéponseHTTP>(
       `${this._ENDPOINT}/parcoursup`,
       {
@@ -46,7 +72,9 @@ export class ÉlèveHttpRepository implements ÉlèveRepository {
       },
     );
 
-    if (!réponse) return undefined;
+    if (réponse instanceof Error) {
+      return réponse;
+    }
 
     return true;
   }

@@ -4,7 +4,7 @@ import { type FormationRepository } from "@/features/formation/infrastructure/fo
 export class RechercherFormationsUseCase {
   public constructor(private readonly _formationRepository: FormationRepository) {}
 
-  public async run(recherche: string): Promise<Formation[] | undefined> {
+  public async run(recherche: string): Promise<Formation[] | Error> {
     return await this._formationRepository.rechercher(recherche);
   }
 }

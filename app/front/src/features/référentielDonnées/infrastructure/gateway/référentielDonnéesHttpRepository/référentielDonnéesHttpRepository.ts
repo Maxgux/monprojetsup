@@ -9,10 +9,12 @@ export class RéférentielDonnéesHttpRepository implements RéférentielDonnée
 
   public constructor(private _mpsApiHttpClient: IMpsApiHttpClient) {}
 
-  public async récupérer(): Promise<RéférentielDonnées | undefined> {
+  public async récupérer(): Promise<RéférentielDonnées | Error> {
     const réponse = await this._mpsApiHttpClient.get<RécupérerRéférentielDonnéesRéponseHTTP>(this._ENDPOINT);
 
-    if (!réponse) return undefined;
+    if (réponse instanceof Error) {
+      return réponse;
+    }
 
     return this._mapperVersLeDomaine(réponse);
   }

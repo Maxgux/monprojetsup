@@ -4,6 +4,10 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: Number.POSITIVE_INFINITY,
+      throwOnError: true,
+    },
+    mutations: {
+      throwOnError: true,
     },
   },
 });

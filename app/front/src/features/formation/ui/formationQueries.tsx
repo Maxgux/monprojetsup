@@ -1,5 +1,6 @@
 import { dépendances } from "@/configuration/dépendances/dépendances";
 import { type Formation } from "@/features/formation/domain/formation.interface";
+import { NonTrouvéError } from "@/services/errors/errors";
 import { queryOptions } from "@tanstack/react-query";
 
 export const récupérerFormationQueryOptions = (formationId: Formation["id"] | null) =>
@@ -10,7 +11,17 @@ export const récupérerFormationQueryOptions = (formationId: Formation["id"] | 
         return null;
       }
 
-      return (await dépendances.récupérerFormationUseCase.run(formationId)) ?? null;
+      const réponse = await dépendances.récupérerFormationUseCase.run(formationId);
+
+      if (réponse instanceof NonTrouvéError) {
+        return null;
+      }
+
+      if (réponse instanceof Error) {
+        throw réponse;
+      }
+
+      return réponse ?? null;
     },
   });
 
@@ -20,9 +31,13 @@ export const récupérerFormationsQueryOptions = (formationIds: Array<Formation[
     queryFn: async () => {
       if (formationIds.length === 0) return [];
 
-      const formations = await dépendances.récupérerFormationsUseCase.run(formationIds);
+      const réponse = await dépendances.récupérerFormationsUseCase.run(formationIds);
 
-      return formations ?? [];
+      if (réponse instanceof Error) {
+        throw réponse;
+      }
+
+      return réponse;
     },
   });
 
@@ -32,9 +47,13 @@ export const rechercherFormationsQueryOptions = (recherche?: string) =>
     queryFn: async () => {
       if (recherche === undefined) return [];
 
-      const formations = await dépendances.rechercherFormationsUseCase.run(recherche);
+      const réponse = await dépendances.rechercherFormationsUseCase.run(recherche);
 
-      return formations ?? [];
+      if (réponse instanceof Error) {
+        throw réponse;
+      }
+
+      return réponse;
     },
     enabled: false,
   });
@@ -42,8 +61,12 @@ export const rechercherFormationsQueryOptions = (recherche?: string) =>
 export const suggérerFormationsQueryOptions = queryOptions({
   queryKey: ["formationsSuggestions"],
   queryFn: async () => {
-    const formations = await dépendances.suggérerFormationsUseCase.run();
+    const réponse = await dépendances.suggérerFormationsUseCase.run();
 
-    return formations ?? [];
+    if (réponse instanceof Error) {
+      throw réponse;
+    }
+
+    return réponse;
   },
 });
