@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/require-await */
 import { type Métier } from "@/features/métier/domain/métier.interface";
 import { type MétierRepository } from "@/features/métier/infrastructure/métierRepository.interface";
-import { NonTrouvéError } from "@/services/errors/errors";
+import { RessourceNonTrouvéeErreur } from "@/services/erreurs/erreurs";
 
 export class métierInMemoryRepository implements MétierRepository {
   private MÉTIERS: Métier[] = [
@@ -120,7 +120,7 @@ export class métierInMemoryRepository implements MétierRepository {
   ];
 
   public async récupérer(métierId: string): Promise<Métier | Error> {
-    return this.MÉTIERS.find((métier) => métier.id === métierId) ?? new NonTrouvéError();
+    return this.MÉTIERS.find((métier) => métier.id === métierId) ?? new RessourceNonTrouvéeErreur();
   }
 
   public async récupérerPlusieurs(métierIds: string[]): Promise<Métier[] | Error> {

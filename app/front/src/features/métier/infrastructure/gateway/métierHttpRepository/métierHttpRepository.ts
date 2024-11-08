@@ -4,6 +4,8 @@ import {
 } from "./métierHttpRepository.interface";
 import { type Métier } from "@/features/métier/domain/métier.interface";
 import { type MétierRepository } from "@/features/métier/infrastructure/métierRepository.interface";
+import { RessourceNonTrouvéeErreur } from "@/services/erreurs/erreurs";
+import { RessourceNonTrouvéeErreurHttp } from "@/services/erreurs/erreursHttp";
 import { type IMpsApiHttpClient } from "@/services/mpsApiHttpClient/mpsApiHttpClient.interface";
 
 export class métierHttpRepository implements MétierRepository {
@@ -13,6 +15,10 @@ export class métierHttpRepository implements MétierRepository {
 
   public async récupérer(métierId: string): Promise<Métier | Error> {
     const réponse = await this.récupérerPlusieurs([métierId]);
+
+    if (réponse instanceof RessourceNonTrouvéeErreurHttp) {
+      return new RessourceNonTrouvéeErreur();
+    }
 
     if (réponse instanceof Error) {
       return réponse;

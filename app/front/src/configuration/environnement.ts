@@ -3,6 +3,7 @@ import { z } from "zod";
 
 export const environnement = createEnv({
   client: {
+    VITE_ENV: z.string(),
     VITE_APP_URL: z.string().url(),
     VITE_API_URL: z.string().url(),
     VITE_PUBLIC_WEBSITE_URL: z.string().url(),
@@ -20,6 +21,9 @@ export const environnement = createEnv({
       .transform((variable) => variable === "true"),
     VITE_PARCOURSUP_OAUTH2_URL: z.string().url().optional(),
     VITE_PARCOURSUP_OAUTH2_CLIENT: z.string().optional(),
+    VITE_SENTRY_DSN: z.string().url().optional(),
+    VITE_SENTRY_ORG: z.string().optional(),
+    VITE_SENTRY_PROJET: z.string().optional(),
   },
   clientPrefix: "VITE_",
   runtimeEnv: import.meta.env,

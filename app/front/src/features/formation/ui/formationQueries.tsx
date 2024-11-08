@@ -1,6 +1,6 @@
 import { dépendances } from "@/configuration/dépendances/dépendances";
 import { type Formation } from "@/features/formation/domain/formation.interface";
-import { NonTrouvéError } from "@/services/errors/errors";
+import { RessourceNonTrouvéeErreur } from "@/services/erreurs/erreurs";
 import { queryOptions } from "@tanstack/react-query";
 
 export const récupérerFormationQueryOptions = (formationId: Formation["id"] | null) =>
@@ -13,7 +13,7 @@ export const récupérerFormationQueryOptions = (formationId: Formation["id"] | 
 
       const réponse = await dépendances.récupérerFormationUseCase.run(formationId);
 
-      if (réponse instanceof NonTrouvéError) {
+      if (réponse instanceof RessourceNonTrouvéeErreur) {
         return null;
       }
 

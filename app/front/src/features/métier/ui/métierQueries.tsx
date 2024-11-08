@@ -1,6 +1,6 @@
 import { dépendances } from "@/configuration/dépendances/dépendances";
 import { type Métier } from "@/features/métier/domain/métier.interface";
-import { NonTrouvéError } from "@/services/errors/errors";
+import { RessourceNonTrouvéeErreur } from "@/services/erreurs/erreurs";
 import { queryOptions } from "@tanstack/react-query";
 
 export const récupérerMétierQueryOptions = (métierId: Métier["id"] | null) =>
@@ -13,7 +13,7 @@ export const récupérerMétierQueryOptions = (métierId: Métier["id"] | null) 
 
       const réponse = await dépendances.récupérerMétierUseCase.run(métierId);
 
-      if (réponse instanceof NonTrouvéError) {
+      if (réponse instanceof RessourceNonTrouvéeErreur) {
         return null;
       }
 

@@ -10,7 +10,7 @@ import { ScrollRestoration } from "@tanstack/react-router";
 const Erreur = ({ erreur }: ErreurProps) => {
   const utilisateur = useUtilisateur();
 
-  if (erreur.constructor.name === "NonIdentifiéError" || erreur.constructor.name === "NonAutoriséError") {
+  if (erreur.constructor.name === "NonIdentifiéErreurHttp" || erreur.constructor.name === "NonAutoriséErreurHttp") {
     void utilisateur.seDéconnecter();
     return null;
   }
@@ -29,17 +29,17 @@ const Erreur = ({ erreur }: ErreurProps) => {
             aria-hidden="true"
             className="fr-display--lg fr-mb-0"
           >
-            {erreur.constructor.name === "ServeurTemporairementIndisponibleError"
+            {erreur.constructor.name === "ServeurTemporairementIndisponibleErreurHttp"
               ? i18n.ERREURS.SERVEUR_INDISPONIBLE.EMOJI
               : i18n.ERREURS.GÉNÉRIQUE.EMOJI}
           </div>
           <p className="fr-display--xs mb-0">
-            {erreur.constructor.name === "ServeurTemporairementIndisponibleError"
+            {erreur.constructor.name === "ServeurTemporairementIndisponibleErreurHttp"
               ? i18n.ERREURS.SERVEUR_INDISPONIBLE.TITRE
               : i18n.ERREURS.GÉNÉRIQUE.TITRE}
           </p>
           <p className="fr-h3">
-            {erreur.constructor.name === "ServeurTemporairementIndisponibleError"
+            {erreur.constructor.name === "ServeurTemporairementIndisponibleErreurHttp"
               ? i18n.ERREURS.SERVEUR_INDISPONIBLE.SOUS_TITRE
               : i18n.ERREURS.GÉNÉRIQUE.SOUS_TITRE}
           </p>

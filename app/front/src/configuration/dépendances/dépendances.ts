@@ -27,14 +27,14 @@ import { AssocierCompteParcourSupÉlèveUseCase } from "@/features/élève/useca
 import { MettreÀJourÉlèveUseCase } from "@/features/élève/usecase/MettreÀJourProfilÉlève";
 import { RécupérerÉlèveUseCase } from "@/features/élève/usecase/RécupérerProfilÉlève";
 import { HttpClient } from "@/services/httpClient/httpClient";
-import { Logger } from "@/services/logger/logger";
+import { ConsoleLogger } from "@/services/logger/consoleLogger/consoleLogger";
+import { Logger } from "@/services/logger/logger.interface";
+import { SentryLogger } from "@/services/logger/sentryLogger/sentryLogger";
 import { MpsApiHttpClient } from "@/services/mpsApiHttpClient/mpsApiHttpClient";
 
 export class Dépendances {
   // eslint-disable-next-line no-use-before-define
   private static instance: Dépendances;
-
-  private readonly _logger: Logger;
 
   private readonly _httpClient: HttpClient;
 
@@ -49,6 +49,8 @@ export class Dépendances {
   private readonly _métierRepository: MétierRepository;
 
   private readonly _communeRepository: CommuneRepository;
+
+  public readonly logger: Logger;
 
   public readonly récupérerRéférentielDonnéesUseCase: RécupérerRéférentielDonnéesUseCase;
 
@@ -75,8 +77,7 @@ export class Dépendances {
   public readonly rechercherCommunesUseCase: RechercherCommunesUseCase;
 
   private constructor() {
-    this._logger = new Logger();
-    this._httpClient = new HttpClient(this._logger);
+    this._httpClient = new HttpClient();
     this._mpsApiHttpClient = new MpsApiHttpClient(this._httpClient, environnement.VITE_API_URL);
 
     // Repositories
@@ -95,6 +96,9 @@ export class Dépendances {
     this._communeRepository = environnement.VITE_TEST_MODE
       ? new communeInMemoryRepository()
       : new communeHttpRepository(this._httpClient);
+
+    // Logger
+    this.logger = environnement.VITE_SENTRY_DSN ? new SentryLogger() : new ConsoleLogger();
 
     // Référentiel de données
     this.récupérerRéférentielDonnéesUseCase = new RécupérerRéférentielDonnéesUseCase(

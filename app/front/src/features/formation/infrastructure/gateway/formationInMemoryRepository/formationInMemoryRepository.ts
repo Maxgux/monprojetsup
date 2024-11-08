@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/require-await */
 import { type Formation } from "@/features/formation/domain/formation.interface";
 import { type FormationRepository } from "@/features/formation/infrastructure/formationRepository.interface";
-import { NonTrouvéError } from "@/services/errors/errors";
+import { RessourceNonTrouvéeErreur } from "@/services/erreurs/erreurs";
 
 export class formationInMemoryRepository implements FormationRepository {
   private FORMATIONS: Formation[] = [
@@ -158,7 +158,7 @@ export class formationInMemoryRepository implements FormationRepository {
   ];
 
   public async récupérer(formationId: string): Promise<Formation | Error> {
-    return this.FORMATIONS.find((formation) => formation.id === formationId) ?? new NonTrouvéError();
+    return this.FORMATIONS.find((formation) => formation.id === formationId) ?? new RessourceNonTrouvéeErreur();
   }
 
   public async récupérerPlusieurs(formationIds: string[]): Promise<Formation[] | Error> {

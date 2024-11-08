@@ -1,17 +1,16 @@
 import { type HttpClientOptions, type IHttpClient } from "./httpClient.interface";
 import {
-  HttpGénériqueError,
-  NonAutoriséError,
-  NonIdentifiéError,
-  NonTrouvéError,
-  RequêteInvalideError,
-  ServeurTemporairementIndisponibleError,
-} from "@/services/errors/errors";
-import { type ILogger } from "@/services/logger/logger.interface";
+  CodeRéponseInattenduErreurHttp,
+  ErreurInconnueErreurHttp,
+  ErreurInterneServeurErreurHttp,
+  NonAutoriséErreurHttp,
+  NonIdentifiéErreurHttp,
+  RequêteInvalideErreurHttp,
+  RessourceNonTrouvéeErreurHttp,
+  ServeurTemporairementIndisponibleErreurHttp,
+} from "@/services/erreurs/erreursHttp";
 
 export class HttpClient implements IHttpClient {
-  public constructor(private readonly _logger: ILogger) {}
-
   public récupérer = async <O extends object>(options: HttpClientOptions): Promise<O | Error> => {
     const { endpoint, méthode, body, contentType, headers } = options;
 
@@ -26,35 +25,37 @@ export class HttpClient implements IHttpClient {
       });
 
       if (!response?.ok) {
-        this._logger.error({ endpoint, méthode, body, status: response.status });
         if (response.status === 400) {
-          return new RequêteInvalideError();
+          return new RequêteInvalideErreurHttp(options);
         }
 
         if (response.status === 401) {
-          return new NonIdentifiéError();
+          return new NonIdentifiéErreurHttp(options);
         }
 
         if (response.status === 403) {
-          return new NonAutoriséError();
+          return new NonAutoriséErreurHttp(options);
         }
 
         if (response.status === 404) {
-          return new NonTrouvéError();
+          return new RessourceNonTrouvéeErreurHttp(options);
         }
 
         if (response.status === 503) {
-          return new ServeurTemporairementIndisponibleError();
+          return new ServeurTemporairementIndisponibleErreurHttp(options);
         }
 
-        return new HttpGénériqueError();
+        if (response.status === 500) {
+          return new ErreurInterneServeurErreurHttp(options);
+        }
+
+        return new CodeRéponseInattenduErreurHttp(options, response.status);
       }
 
       if (response.status === 204) return {} as O;
       return (await response.json()) as O;
     } catch (error) {
-      this._logger.error({ endpoint, méthode, body, error });
-      return new HttpGénériqueError();
+      return new ErreurInconnueErreurHttp({ ...options, error });
     }
   };
 }

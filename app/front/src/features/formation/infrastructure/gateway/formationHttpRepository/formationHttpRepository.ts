@@ -4,6 +4,8 @@ import {
 } from "./formationHttpRepository.interface";
 import { type Formation } from "@/features/formation/domain/formation.interface";
 import { type FormationRepository } from "@/features/formation/infrastructure/formationRepository.interface";
+import { RessourceNonTrouvéeErreur } from "@/services/erreurs/erreurs";
+import { RessourceNonTrouvéeErreurHttp } from "@/services/erreurs/erreursHttp";
 import { type IMpsApiHttpClient } from "@/services/mpsApiHttpClient/mpsApiHttpClient.interface";
 
 export class formationHttpRepository implements FormationRepository {
@@ -13,6 +15,10 @@ export class formationHttpRepository implements FormationRepository {
 
   public async récupérer(formationId: string): Promise<Formation | Error> {
     const réponse = await this.récupérerPlusieurs([formationId]);
+
+    if (réponse instanceof RessourceNonTrouvéeErreurHttp) {
+      return new RessourceNonTrouvéeErreur();
+    }
 
     if (réponse instanceof Error) {
       return réponse;
