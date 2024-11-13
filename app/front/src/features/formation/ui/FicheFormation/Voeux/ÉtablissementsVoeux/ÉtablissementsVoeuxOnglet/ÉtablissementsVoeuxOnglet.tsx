@@ -23,8 +23,8 @@ const ÉtablissementsVoeuxOnglet = ({ formation, codeCommune }: ÉtablissementsV
 
   return (
     <div key={key}>
-      <div className="fr-text--xs mb-3 flex">
-        <p className="fr-text--xs">{i18n.PAGE_FORMATION.VOEUX.ÉTABLISSEMENTS.PAR_COMMUNE.RAYON} </p>
+      <div className="fr-text--xs mb-3 grid grid-flow-col items-baseline justify-start gap-1">
+        <p className="fr-text--xs mb-0">{i18n.PAGE_FORMATION.VOEUX.ÉTABLISSEMENTS.PAR_COMMUNE.RAYON} </p>
         <ul className="m-0 inline-flex list-none flex-wrap justify-start gap-1 p-0">
           {rayons.map((rayon) => (
             <li

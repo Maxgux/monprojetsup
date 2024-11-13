@@ -15,6 +15,32 @@ vi.mock("@/features/utilisateur/ui/hooks/useUtilisateur/useUtilisateur", () => (
   default: vi.fn(),
 }));
 
+const mockUseRouterState = (pathname: string) => ({
+  location: {
+    pathname,
+    href: "",
+    search: undefined,
+    searchStr: "",
+    state: {},
+    hash: "",
+  },
+  status: "idle" as const,
+  loadedAt: 0,
+  isLoading: false,
+  isTransitioning: false,
+  matches: [],
+  cachedMatches: [],
+  resolvedLocation: {
+    pathname,
+    href: "",
+    search: undefined,
+    searchStr: "",
+    state: {},
+    hash: "",
+  },
+  statusCode: 0,
+});
+
 const utilisateurNonConnecté = {
   id: undefined,
   seDéconnecter: vi.fn(),
@@ -38,7 +64,7 @@ describe("useEntête", () => {
 
   describe("Lorsque l'utilisateur n'est pas connecté", () => {
     beforeAll(() => {
-      vi.mocked(useRouterState).mockReturnValue({ location: { pathname: "/" } });
+      vi.mocked(useRouterState).mockReturnValue(mockUseRouterState("/"));
       vi.mocked(useUtilisateur).mockResolvedValue(utilisateurNonConnecté);
     });
 
@@ -67,9 +93,7 @@ describe("useEntête", () => {
 
   describe("Lorsque l'utilisateur est connecté sur une page du parcours d'inscription", () => {
     beforeAll(() => {
-      vi.mocked(useRouterState).mockReturnValue({
-        location: { pathname: constantes.ÉLÈVE.PATH_PARCOURS_INSCRIPTION },
-      });
+      vi.mocked(useRouterState).mockReturnValue(mockUseRouterState(constantes.ÉLÈVE.PATH_PARCOURS_INSCRIPTION));
       vi.mocked(useUtilisateur).mockReturnValue(utilisateurConnecté);
     });
 
@@ -100,9 +124,7 @@ describe("useEntête", () => {
 
   describe("Lorsque l'utilisateur est connecté sur d'autres pages", () => {
     beforeAll(() => {
-      vi.mocked(useRouterState).mockReturnValue({
-        location: { pathname: "/" },
-      });
+      vi.mocked(useRouterState).mockReturnValue(mockUseRouterState("/"));
       vi.mocked(useUtilisateur).mockReturnValue(utilisateurConnecté);
     });
 
