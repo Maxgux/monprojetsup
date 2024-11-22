@@ -1,4 +1,5 @@
 import {
+  LiensFormationRéponseHTTP,
   type RécupérerFormationsRéponseHTTP,
   type RécupérerSuggestionsFormationsRéponseHTTP,
 } from "./formationHttpRepository.interface";
@@ -75,7 +76,17 @@ export class formationHttpRepository implements FormationRepository {
   }
 
   private _mapperVersLeDomaine(formationHttp: RécupérerFormationsRéponseHTTP["formations"][number]): Formation {
-    const regexLienParcoursSup = /Parcoursup/u;
+    const lienParcourSup = formationHttp.formation.liens.find((lien) => /Parcoursup/u.exec(lien.nom));
+    const lienParcourSupAvecCommunesFavorites = lienParcourSup
+      ? {
+          nom: lienParcourSup.nom,
+          url: this._générerLeLienParcourSupAvecCommunesFavorites(
+            lienParcourSup.url,
+            formationHttp.formation.communesFavoritesAvecLeursVoeux,
+          ),
+        }
+      : null;
+
     return {
       id: formationHttp.formation.id,
       nom: formationHttp.formation.nom,
@@ -86,8 +97,8 @@ export class formationHttpRepository implements FormationRepository {
         conseils: formationHttp.formation.descriptifConseils ?? null,
       },
       estEnAlternance: formationHttp.formation.apprentissage,
-      lienParcoursSup: formationHttp.formation.liens.find((lien) => regexLienParcoursSup.exec(lien.nom))?.url ?? null,
-      liens: formationHttp.formation.liens.map((lien) => ({ intitulé: lien.nom, url: lien.url })),
+      lienParcoursSup: lienParcourSupAvecCommunesFavorites?.url ?? null,
+      liens: this._mapperLiensVersLeDomaine(formationHttp.formation.liens, lienParcourSupAvecCommunesFavorites),
       admis: {
         moyenneGénérale: {
           idBac: formationHttp.formation.moyenneGeneraleDesAdmis?.baccalaureat?.id ?? null,
@@ -140,12 +151,12 @@ export class formationHttpRepository implements FormationRepository {
         descriptif: métier.descriptif ?? null,
         liens: métier.liens.map((lien) => ({ intitulé: lien.nom, url: lien.url })),
       })),
-      explications: this._mapperLesExplications(formationHttp.explications),
+      explications: this._mapperExplicationsVersLeDomaine(formationHttp.explications),
       affinité: this._calculerNombrePointsAffinité(formationHttp.explications),
     };
   }
 
-  private _mapperLesExplications = (
+  private _mapperExplicationsVersLeDomaine = (
     explications: RécupérerFormationsRéponseHTTP["formations"][number]["explications"],
   ): Formation["explications"] => {
     if (!explications) {
@@ -237,4 +248,87 @@ export class formationHttpRepository implements FormationRepository {
 
     return points;
   };
+
+  private _ajouterDesIdsVoeuxÀUrlParcourSup(voeuxIds: string[], lien: string) {
+    const lienParsé = new URL(lien);
+    const paramètresDeRecherche = new URLSearchParams(lienParsé.search);
+    paramètresDeRecherche.set("center_on_interests", voeuxIds.join(","));
+
+    return `${lienParsé.origin}${lienParsé.pathname}?${decodeURIComponent(paramètresDeRecherche.toString())}`;
+  }
+
+  private _générerLeLienParcourSupAvecCommunesFavorites(
+    lien: string,
+    voeuxParCommuneFavorites: RécupérerFormationsRéponseHTTP["formations"][number]["formation"]["communesFavoritesAvecLeursVoeux"],
+  ): string {
+    const uneCommuneFavorite = voeuxParCommuneFavorites.length === 1;
+    const plusieursCommunesFavorites = voeuxParCommuneFavorites.length > 1;
+
+    if (uneCommuneFavorite) {
+      const voeuxDeLaCommune = voeuxParCommuneFavorites[0].voeuxAvecDistance;
+
+      const pasDeVoeuxÀProximitéCommune = voeuxDeLaCommune.length === 0;
+      const unVoeuÀProximitéCommune = voeuxDeLaCommune.length === 1;
+
+      if (pasDeVoeuxÀProximitéCommune) return lien;
+
+      const idVoeuLePlusProcheDeLaCommune = voeuxDeLaCommune[0]?.voeu.id;
+      const idVoeuLePlusLoinDeLaCommune = voeuxDeLaCommune?.[voeuxDeLaCommune.length - 1]?.voeu.id;
+      if (unVoeuÀProximitéCommune) return this._ajouterDesIdsVoeuxÀUrlParcourSup([idVoeuLePlusProcheDeLaCommune], lien);
+
+      return this._ajouterDesIdsVoeuxÀUrlParcourSup([idVoeuLePlusProcheDeLaCommune, idVoeuLePlusLoinDeLaCommune], lien);
+    } else if (plusieursCommunesFavorites) {
+      const communesAvecAuMoinsUnVoeu = voeuxParCommuneFavorites.filter((voeu) => voeu.voeuxAvecDistance.length > 0);
+      const aucuneCommuneAvecVoeu = communesAvecAuMoinsUnVoeu.length === 0;
+      const uneCommuneAvecVoeu = communesAvecAuMoinsUnVoeu.length === 1;
+
+      if (aucuneCommuneAvecVoeu) {
+        return lien;
+      }
+
+      if (uneCommuneAvecVoeu) {
+        const voeuxDeLaCommune = communesAvecAuMoinsUnVoeu[0].voeuxAvecDistance;
+        const unVoeuÀProximitéCommune = voeuxDeLaCommune.length === 1;
+        const idVoeuLePlusProcheDeLaCommune = voeuxDeLaCommune[0]?.voeu.id;
+        const idVoeuLePlusLoinDeLaCommune = voeuxDeLaCommune?.[voeuxDeLaCommune.length - 1]?.voeu.id;
+
+        if (unVoeuÀProximitéCommune) return this._ajouterDesIdsVoeuxÀUrlParcourSup([voeuxDeLaCommune[0].voeu.id], lien);
+
+        return this._ajouterDesIdsVoeuxÀUrlParcourSup(
+          [idVoeuLePlusProcheDeLaCommune, idVoeuLePlusLoinDeLaCommune],
+          lien,
+        );
+      }
+
+      // eslint-disable-next-line unicorn/no-array-reduce
+      const idsDesVoeuxDesCommunes = communesAvecAuMoinsUnVoeu.reduce<string[]>((idsDesVoeux, commune) => {
+        const idVoeuÀAjouter = commune.voeuxAvecDistance.find(
+          (voeuAvecDistance) => idsDesVoeux.includes(voeuAvecDistance.voeu.id) === false,
+        )?.voeu.id;
+
+        if (idVoeuÀAjouter) {
+          idsDesVoeux.push(idVoeuÀAjouter);
+        }
+
+        return idsDesVoeux;
+      }, []);
+
+      return this._ajouterDesIdsVoeuxÀUrlParcourSup(idsDesVoeuxDesCommunes, lien);
+    }
+
+    return lien;
+  }
+
+  private _mapperLiensVersLeDomaine(
+    liens: LiensFormationRéponseHTTP,
+    lienParcourSup: LiensFormationRéponseHTTP[number] | null,
+  ): Formation["liens"] {
+    return liens.map((lien) => {
+      if (lienParcourSup && lienParcourSup.nom === lien.nom) {
+        return { intitulé: lienParcourSup.nom, url: lienParcourSup.url };
+      }
+
+      return { intitulé: lien.nom, url: lien.url };
+    });
+  }
 }
