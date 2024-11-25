@@ -30,10 +30,11 @@
       script-src 'self';
       style-src 'self' 'unsafe-inline';
       img-src 'self' data:;
-      connect-src 'self' %VITE_API_URL% %VITE_KEYCLOAK_URL% https://api-adresse.data.gouv.fr;
-      frame-src 'self' %VITE_KEYCLOAK_URL%;
+      connect-src 'self' %VITE_API_URL% %VITE_KEYCLOAK_URL% https://api-adresse.data.gouv.fr *.ingest.de.sentry.io;
+      frame-src 'self' %VITE_APP_URL% %VITE_KEYCLOAK_URL%;
       font-src 'self';
-      object-src 'self';
+      object-src 'self'
+      worker-src blob: %VITE_APP_URL%;
   ">
   <meta http-equiv="X-XSS-Protection" content="1; mode=block">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
