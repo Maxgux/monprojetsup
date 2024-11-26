@@ -9,7 +9,6 @@ export const userManagerOIDCClient = new UserManager({
   redirect_uri: window.location.origin + window.location.pathname,
   post_logout_redirect_uri: environnement.VITE_APP_URL,
   userStore: new WebStorageStateStore({ store: window.sessionStorage }),
-  monitorSession: true,
 });
 
 export const àLaConnexionOIDCClientCallback = () => {
