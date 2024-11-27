@@ -30,7 +30,7 @@ export class HttpClient implements IHttpClient {
 
       return réponse.data as O;
     } catch (error) {
-      if (error instanceof Object && error.constructor.name === "AxiosError") {
+      if (error instanceof AxiosError || (error instanceof Object && error.constructor.name === "AxiosError")) {
         const erreur = error as AxiosError;
 
         if (erreur.response) {
