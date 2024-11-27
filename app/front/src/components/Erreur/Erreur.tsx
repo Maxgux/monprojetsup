@@ -24,7 +24,7 @@ const Erreur = ({ erreur }: ErreurProps) => {
       <main id="contenu">
         <ScrollRestoration />
         <Toast />
-        <div className="my-60 grid gap-2 place-self-center text-center lg:w-[45%]">
+        <div className="mx-auto my-60 grid gap-2 place-self-center text-center lg:w-[45%]">
           <div
             aria-hidden="true"
             className="fr-display--lg fr-mb-0"

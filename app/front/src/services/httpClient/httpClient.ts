@@ -57,18 +57,18 @@ export class HttpClient implements IHttpClient {
           }
 
           if (statusErreur === 500) {
-            return new ErreurInterneServeurErreurHttp({ ...options, erreur: error });
+            return new ErreurInterneServeurErreurHttp({ ...options, erreur: JSON.stringify(error) });
           }
 
-          return new CodeRéponseInattenduErreurHttp({ ...options, erreur: error }, statusErreur);
+          return new CodeRéponseInattenduErreurHttp({ ...options, erreur: JSON.stringify(error) }, statusErreur);
         } else if (erreur.code === "ECONNABORTED") {
-          return new RequêteAnnuléeErreurHttp({ ...options, erreur: error });
+          return new RequêteAnnuléeErreurHttp({ ...options, erreur: JSON.stringify(error) });
         } else if (erreur.cause?.message === "Network Error") {
-          return new ErreurRéseauErreurHttp({ ...options, erreur: error });
+          return new ErreurRéseauErreurHttp({ ...options, erreur: JSON.stringify(error) });
         }
       }
 
-      return new ErreurInconnueErreurHttp({ ...options, erreur: error });
+      return new ErreurInconnueErreurHttp({ ...options, erreur: JSON.stringify(error) });
     }
   };
 }
